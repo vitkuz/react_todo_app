@@ -4,7 +4,9 @@ import List from './List'
 
 const Content = (props) => (
     <div>
-      <List items={props.items} removeItem={props.removeItem}/>
+      {
+        props.items.length > 0 ? <List items={props.items} removeItem={props.removeItem}/> : 'No items'
+      }
     </div>
 )
 

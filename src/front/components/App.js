@@ -1,34 +1,35 @@
 import React, { Component } from 'react';
 import uuid from 'uuid/v1';
 
-import Header from './Header.js';
-import Footer from './Footer.js';
-import Action from './Action.js';
-import Content from './Content.js';
-import AddItem from './AddItem.js';
+import Header from './Header';
+import Footer from './Footer';
+import Action from './Action';
+import Content from './Content';
+import AddItem from './AddItem';
+import ModalWindow from './ModalShowRandomItem';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.addItem = this.addItem.bind(this);
-    this.selectRandom = this.selectRandom.bind(this);
-    this.removeItem = this.removeItem.bind(this);
-    this.removeAll = this.removeAll.bind(this);
-    this.state = {
-      title: 'App title',
-      items: [
-        {
-          id: uuid(),
-          title: 'Test 1'
-        },
-        {
-          id: uuid(),
-          title: 'Test 2'
-        }
-      ]
-    }
-  }
-  addItem(e) {
+  state = {
+    title: 'App title',
+    items: [
+      {
+        id: uuid(),
+        title: 'Test 1'
+      },
+      {
+        id: uuid(),
+        title: 'Test 2'
+      }
+    ],
+    showModal: false
+  };
+  handleOpenModal = () => {
+    this.setState({ showModal: true });
+  };
+  handleCloseModal = () => {
+    this.setState({ showModal: false });
+  };
+  addItem = (e) => {
     console.log('add item from app');
     e.preventDefault();
     const option = e.target.elements.option.value.trim();
@@ -43,11 +44,11 @@ class App extends Component {
       })
       e.target.elements.option.value = '';
     }
-  }
-  selectRandom() {
+  };
+  selectRandom = () => {
     const randomIndex = Math.floor(Math.random() * this.state.items.length);
     console.log(this.state.items[randomIndex]);
-  }
+  };
   removeItem(e) {
     const idToRemove = e.target.dataset.id;
     const filtered = this.state.items.filter((item) => {
@@ -62,7 +63,7 @@ class App extends Component {
       }
     })
   }
-  removeAll() {
+  removeAll = () => {
     this.setState( () => {
       return {
         items: []
@@ -71,18 +72,46 @@ class App extends Component {
   }
   componentDidMount() {
     console.log('did mount')
+    
+    try {
+    
+      const appStateFromLocalStorage = JSON.parse(localStorage.getItem('todo_app'));
+      
+      console.log('app',app);
+      
+      this.setState( () => {
+        return appStateFromLocalStorage;
+      })
+    
+    } catch (e) {
+      console.log(e);
+    }
+    
   }
   componentDidUpdate() {
-    console.log('did update')
+    localStorage.setItem('todo_app',JSON.stringify(this.state));
   }
   render() {
     return (
-        <div>
-          <Header />
+        <div className="component-app-root">
+          <Header>
+            <div>
+              LOGO
+            </div>
+            <div>
+              <a href="#" onClick={this.handleOpenModal}>Open menu</a>
+              &nbsp; | 
+              <a href="#" onClick={this.handleCloseModal}>Close menu</a>
+            </div>
+            <div>
+              USER MENU
+            </div>
+          </Header>
           <Action selectRandom={this.selectRandom} removeAll={this.removeAll}/>
           <Content items={this.state.items} removeItem={this.removeItem}/>
           <AddItem addItem={this.addItem}/>
           <Footer />
+          <ModalWindow showModal={this.state.showModal} handleCloseModal={this.handleCloseModal}/>
         </div>
     )
   }
